@@ -73,7 +73,9 @@ public abstract class AbstractServiceFactory {
         File file = new File(filename);
         File dir = file.getParentFile();
         if (!dir.exists())
-            dir.mkdirs();
+            if(!dir.mkdirs()) {
+            	logger.info(dir + " doesn't create as expected.");
+            }
         boolean append = true;
         boolean buffer = false;
         manager.setLogFile(dir, file.getName(), append, buffer);

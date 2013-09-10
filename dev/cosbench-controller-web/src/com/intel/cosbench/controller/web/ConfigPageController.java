@@ -20,18 +20,9 @@ package com.intel.cosbench.controller.web;
 import javax.servlet.http.*;
 
 import org.springframework.web.servlet.ModelAndView;
-
-import com.intel.cosbench.service.ControllerService;
 import com.intel.cosbench.web.AbstractController;
 
 public class ConfigPageController extends AbstractController {
-
-    @SuppressWarnings("unused")
-	private ControllerService controller;
-
-    public void setController(ControllerService controller) {
-        this.controller = controller;
-    }
 
     @Override
     protected ModelAndView process(HttpServletRequest req,

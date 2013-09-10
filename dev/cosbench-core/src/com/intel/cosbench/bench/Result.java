@@ -47,7 +47,7 @@ public class Result {
 //        this.sampleType = sampleType;
 //    }
 
-    public Date getTimestamp() {
+    public final Date getTimestamp() {
         return timestamp;
     }
 

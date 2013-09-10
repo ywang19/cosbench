@@ -40,10 +40,14 @@ public class QueryResponse extends Response {
     private List<Metrics> report; /* metrics report */
 
     public QueryResponse() {
-        /* empty */
+    	super();
     }
 
-    public Date getTime() {
+    public QueryResponse(int code, String error) {
+    	super(code,error);
+    }
+    
+    public final Date getTime() {
         return time;
     }
 

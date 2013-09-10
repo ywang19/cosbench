@@ -50,7 +50,8 @@ class MissionHandler {
 
     static {
         if (!LOG_DIR.exists())
-            LOG_DIR.mkdirs();
+            if(!LOG_DIR.mkdirs())
+            	System.err.println(LOG_DIR + " doesn't create as expected.");
     }
 
     private int retry; // auth retry number
@@ -91,9 +92,11 @@ class MissionHandler {
     }
 
     public void dispose() {
-        if (executor != null)
-            executor.shutdown();
-        executor = null;
+//    	finiIOEngine();
+//        if (executor != null)
+//            executor.shutdown();
+//        executor = null;
+    	abortAgents(true);
     }
 
     public void init() {

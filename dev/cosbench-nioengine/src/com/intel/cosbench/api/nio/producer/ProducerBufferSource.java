@@ -9,6 +9,7 @@ import java.util.Random;
 import org.apache.commons.io.input.NullInputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -30,8 +31,8 @@ public class ProducerBufferSource extends ProducerSource<ByteBuffer> {
 
 	private final long size;
 
-	public ProducerBufferSource(Random random,final long size) {
-		super();
+	public ProducerBufferSource(final ContentType contentType, Random random,final long size) {
+		super(contentType);
 		
 		this.size = size;
 //		this.in = in;

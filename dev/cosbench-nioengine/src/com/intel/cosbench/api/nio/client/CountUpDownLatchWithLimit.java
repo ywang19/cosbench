@@ -34,7 +34,8 @@ public class CountUpDownLatchWithLimit {
     }
     
     public void dispose() {
-    	sem.release();
+    	while(sem.hasQueuedThreads())
+    		sem.release();
     	latch.countDown();    	
     }
     
@@ -44,12 +45,14 @@ public class CountUpDownLatchWithLimit {
     
     public long countDown() {
     	sem.release();
+    	
+    	int available = sem.availablePermits();
 
-    	if(isEmpty()) {
+    	if(available >= limit) {
             latch.countDown();
         }
     	
-        return getActiveCount();
+    	return available;
     }
 
     public long getActiveCount() {

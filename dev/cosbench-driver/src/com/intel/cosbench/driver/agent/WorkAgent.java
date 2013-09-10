@@ -56,6 +56,7 @@ public class WorkAgent extends AbstractAgent {
 //    	workerContext.getSnapshot();
     	
         while (workerContext.isRunning())
+        {
             try {
                 performOperation();
             } catch (AbortedException ae) {
@@ -63,8 +64,11 @@ public class WorkAgent extends AbstractAgent {
             		workerContext.getStats().doSummary();
 //                workerContext.getStats().finished();
             }
+        }
         
-        workerContext.getSnapshot();
+        // wait for all outstanding operations done, with maximum timeout 5 seconds.
+        workerContext.waitForCompletion(5*1000);
+//        workerContext.getSnapshot();
     }
 
 //    private void waitForCompletion(long interval) {

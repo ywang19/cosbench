@@ -27,10 +27,10 @@ import java.text.*;
  */
 class Formats {
 
-    public static final DateFormat TIME = new SimpleDateFormat("HH:mm:ss");
+//    public static final DateFormat TIME = new SimpleDateFormat("HH:mm:ss");
 
-    public static final DateFormat DATETIME = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm:ss");
+//    public static final DateFormat DATETIME = new SimpleDateFormat(
+//            "yyyy-MM-dd HH:mm:ss");
 
     public static final NumberFormat COUNT = new DecimalFormat(",###");
 

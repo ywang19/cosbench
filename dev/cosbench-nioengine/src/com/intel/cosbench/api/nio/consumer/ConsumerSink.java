@@ -2,7 +2,7 @@ package com.intel.cosbench.api.nio.consumer;
 
 import java.io.IOException;
 
-import org.apache.http.HttpResponse;
+//import org.apache.http.HttpResponse;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
 
@@ -14,7 +14,7 @@ import org.apache.http.nio.ContentDecoder;
  * @param <T>
  */
 abstract class ConsumerSink<T> {
-    protected HttpResponse response;
+//    protected HttpResponse response;
     protected ContentType contentType;
     protected T sink;
     

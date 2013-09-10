@@ -59,7 +59,7 @@
 									<td >IO Engine</td>
 									<td >
 										<select name="ioengine.type">
-										  <option value="nio" selected="true">non-blocking I/O</option>
+										  <option value="nio" selected="true">nio engine</option>
 										</select>
 									</td>
 									<td >
@@ -73,9 +73,7 @@
 								<td >Authentication</td>
 								<td >
 									<select name="auth.type">
-									  <option value="swauth" selected="true">swauth</option>
-									  <option value="keystone">keystone</option>
-									  <option value="mock">mock</option>
+									  <option value="swauthnio" selected="true">nio swauth</option>
 									  <option value="none">none</option>
 									</select>
 								</td>
@@ -89,9 +87,7 @@
 								<td >Storage</td>
 								<td >
 									<select name="storage.type">
-									  <option value="swift" selected="true">swift</option>
-									  <option value="ampli">amplistor</option>
-									  <option value="mock">mock</option>
+									  <option value="swiftnio" selected="true">nio swift</option>
 									  <option value="none">none</option>
 									</select>
 								</td>

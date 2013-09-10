@@ -26,7 +26,10 @@ package com.intel.cosbench.protocol;
 public class LoginResponse extends Response {
 
     public LoginResponse() {
-        /* empty */
+    	super();
     }
 
+    public LoginResponse(int code, String error) {
+    	super(code, error);
+    }
 }

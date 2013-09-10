@@ -19,8 +19,8 @@ package com.intel.cosbench.api.auth;
 
 import com.intel.cosbench.api.context.*;
 import com.intel.cosbench.api.ioengine.IOEngineAPI;
-import com.intel.cosbench.api.stats.StatsListener;
-import com.intel.cosbench.api.validator.ResponseValidator;
+//import com.intel.cosbench.api.stats.StatsListener;
+//import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
 
@@ -64,9 +64,9 @@ public interface AuthAPI {
      */
     public void dispose();
 
-	void setListener(StatsListener listener);
+//	void setListener(StatsListener listener);
 
-	void setValidator(ResponseValidator validator);
+//	void setValidator(ResponseValidator validator);
 
 	IOEngineAPI initIOEngine(IOEngineAPI ioengine);
 

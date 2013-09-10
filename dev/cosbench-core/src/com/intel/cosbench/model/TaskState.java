@@ -43,10 +43,9 @@ public enum TaskState {
 
     INTERRUPTED;
 
-    public static Set<TaskState> FINAL_STATES = null;
+    public static final Set<TaskState> FINAL_STATES = new HashSet<TaskState>();
 
     static {
-        FINAL_STATES = new HashSet<TaskState>();
         FINAL_STATES.add(ACCOMPLISHED);
         FINAL_STATES.add(TERMINATED);
         FINAL_STATES.add(ABORTED);

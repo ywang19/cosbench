@@ -54,10 +54,14 @@ public class RandomInputStream extends NullInputStream {
         this.hashCheck = hashCheck;
         try {
             this.util = new HashUtil();
+            this.hashLen = this.util.getHashLen();
         } catch (NoSuchAlgorithmException e) {
-            logger.error("Alogrithm not found", e);
+        	this.util = null;
+        	this.hashCheck = false;
+        	this.hashLen = 0;
+            logger.error("Alogrithm can not be found, will ignore integrity checking", e);
         }
-        this.hashLen = this.util.getHashLen();
+
         if (size <= hashLen) {
             logger.warn("The size is too small to embed checksum, will ignore integrity checking.");
             this.hashCheck = false;

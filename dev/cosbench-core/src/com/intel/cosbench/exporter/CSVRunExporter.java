@@ -17,9 +17,9 @@ limitations under the License.
 
 package com.intel.cosbench.exporter;
 
-import static com.intel.cosbench.exporter.Formats.DATETIME;
-
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.intel.cosbench.model.WorkloadState;
@@ -61,9 +61,11 @@ class CSVRunExporter extends AbstractRunExporter {
         writer.write(buffer.toString());
     }
 
-    private static void appendDate(StringBuilder buffer, Date date) {
-        if (date != null)
+    private void appendDate(StringBuilder buffer, Date date) {
+        if (date != null) {
+        	DateFormat DATETIME = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             buffer.append(DATETIME.format(date));
+        }
         buffer.append(',');
     }
 

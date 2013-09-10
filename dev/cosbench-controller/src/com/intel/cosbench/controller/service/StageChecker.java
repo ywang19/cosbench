@@ -58,7 +58,7 @@ public class StageChecker implements StageCallable {
     private void checkStage() {
         synchronized (stageContext) {
             try {
-                if (!hasLaunched(stageContext.getState()))
+                while (!hasLaunched(stageContext.getState()))
                     stageContext.wait(); // wait for signal from the stage
                                          // runner
             } catch (InterruptedException e) {
@@ -67,29 +67,29 @@ public class StageChecker implements StageCallable {
         }
         if (isStopped(stageContext.getState()))
             return;
-        hold(); // hold for 2.5 seconds
+        pause(2500); // hold for 2.5 seconds
         do {
-            sleep();
+            pause(stageContext.getInterval() * 1000);
             stageContext.makeSnapshot();
             LOGGER.debug("made a snapshot for stage {}", stageContext.getId());
         } while (!isStopped(stageContext.getState()));
     }
 
-    private void hold() {
+    private void pause(long timeMS) {
         try {
-            Thread.sleep(2500);
+            Thread.sleep(timeMS);
         } catch (InterruptedException ie) {
             throw new CancelledException(); // stage cancelled
         }
     }
 
-    private void sleep() {
-        long seconds = stageContext.getInterval();
-        try {
-            Thread.sleep(seconds * 1000);
-        } catch (InterruptedException ie) {
-            throw new CancelledException(); // stage cancelled
-        }
-    }
+//    private void sleep() {
+//        long seconds = stageContext.getInterval();
+//        try {
+//            Thread.sleep(seconds * 1000);
+//        } catch (InterruptedException ie) {
+//            throw new CancelledException(); // stage cancelled
+//        }
+//    }
 
 }

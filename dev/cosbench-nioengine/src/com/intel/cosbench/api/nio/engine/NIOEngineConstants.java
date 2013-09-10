@@ -29,5 +29,8 @@ public interface NIOEngineConstants {
     String IOENGINE_CONCURRENCY_KEY = "concurrency";
     int IOENGINE_CONCURRENCY_DEFAULT = 2;
     
+    String IOENGINE_CONNECTION_TIMEOUT_KEY = "timeout";
+    int IOENGINE_CONNECTION_TIMEOUT_DEFAULT = 30000;
+    
    
 }

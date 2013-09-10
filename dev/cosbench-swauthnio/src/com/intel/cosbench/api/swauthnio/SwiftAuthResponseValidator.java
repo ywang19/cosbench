@@ -29,9 +29,9 @@ public class SwiftAuthResponseValidator extends BaseResponseValidator {
 	 				) 
 		 {
 			String authToken = response.getFirstHeader(X_AUTH_TOKEN) != null ? response
-			         .getFirstHeader(X_AUTH_TOKEN).getValue() : null;
+			         .getFirstHeader(X_AUTH_TOKEN).getValue() : X_AUTH_TOKEN;
 			String storageURL = response.getFirstHeader(X_STORAGE_URL) != null ? response
-			         .getFirstHeader(X_STORAGE_URL).getValue() : null;
+			         .getFirstHeader(X_STORAGE_URL).getValue() : X_STORAGE_URL;
 			context.put(AUTH_TOKEN_KEY, authToken);
 			context.put(STORAGE_URL_KEY, storageURL);
 

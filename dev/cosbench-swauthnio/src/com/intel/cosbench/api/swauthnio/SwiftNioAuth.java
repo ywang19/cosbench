@@ -30,8 +30,8 @@ import org.apache.http.message.BasicHttpRequest;
 import com.intel.cosbench.api.auth.*;
 import com.intel.cosbench.api.context.ExecContext;
 import com.intel.cosbench.api.nio.client.NIOClient;
-import com.intel.cosbench.api.nio.engine.NIOEngine;
-import com.intel.cosbench.api.nio.util.NIOEngineUtil;
+//import com.intel.cosbench.api.nio.engine.NIOEngine;
+//import com.intel.cosbench.api.nio.util.NIOEngineUtil;
 import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.client.swauthnio.*;
 import com.intel.cosbench.config.Config;
@@ -79,7 +79,7 @@ class SwiftNioAuth extends NoneAuth {
         logger.debug("using auth config: {}", parms);
 
         if(ioengine != null) {
-        	nioclient = NIOEngineUtil.newClient((NIOEngine)ioengine);
+        	nioclient = (NIOClient)ioengine.newClient();
         	validator = new SwiftAuthResponseValidator();
         	nioclient.setValidator(validator);
         	logger.info("swauth client has been initialized");
@@ -101,6 +101,12 @@ class SwiftNioAuth extends NoneAuth {
         super.login();
 
         try {
+	    		if(nioclient == null)
+	    		{
+	    			logger.error("nio client is not initialized yet!");
+	    			return null;
+	    		}
+    		
            	// construct request.
         		logger.debug("Auth: url={}", url);
                 URI uri = URI.create(url);
@@ -112,11 +118,7 @@ class SwiftNioAuth extends NoneAuth {
                 // issue request.
         		HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
 
-        		if(nioclient == null)
-        		{
-        			logger.error("nio client is not initialized yet!");
-        			return null;
-        		}
+
         		
         		ExecContext context = new ExecContext(target, method, null, "login", 0);
         		nioclient.GETorHEAD(target, method, context, true);

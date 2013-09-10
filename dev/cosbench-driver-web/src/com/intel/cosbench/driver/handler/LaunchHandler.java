@@ -29,7 +29,7 @@ public class LaunchHandler extends MissionHandler {
         String id = info.getId();
         driver.launch(id);
         if (info.getState().equals(TERMINATED))
-            return new Response(false, "launch failed");
+            return new LaunchResponse(501, "launch failed");
         return getResponse(info);
     }
 

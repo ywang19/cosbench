@@ -77,10 +77,10 @@ public class HttpClientUtil {
         /* default HTTP parameters */
         DefaultHttpClient.setDefaultHttpParams(params);
         /* connection/socket timeouts */
-        HttpConnectionParams.setSoTimeout(params, timeout);
+        HttpConnectionParams.setSoTimeout(params, timeout * 10);
         HttpConnectionParams.setConnectionTimeout(params, timeout);
         /* user agent */
-        HttpProtocolParams.setUserAgent(params, "cosbench/2.0");
+        HttpProtocolParams.setUserAgent(params, "cosbench/3.0");
         return params;
     }
     

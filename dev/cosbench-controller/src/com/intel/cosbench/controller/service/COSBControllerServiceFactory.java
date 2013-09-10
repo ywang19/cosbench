@@ -75,6 +75,7 @@ public class COSBControllerServiceFactory extends AbstractServiceFactory
         context.setName(loadControllerName());
         context.setUrl(loadControllerUrl());
         context.setConcurrency(loadConcurrency());
+        context.setTimeout(loadTimeout());
         context.setDriverRegistry(getDriverRegistry());
         return context;
     }
@@ -99,6 +100,10 @@ public class COSBControllerServiceFactory extends AbstractServiceFactory
         return config.getInt("controller.concurrency", 1);
     }
 
+    private int loadTimeout() {
+    	return config.getInt("controller.timeout", 0);
+    }
+    
     private DriverRegistry getDriverRegistry() {
         DriverRegistry registry = new DriverRegistry();
         int drivers = config.getInt("controller.drivers");

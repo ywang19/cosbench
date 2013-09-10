@@ -43,10 +43,9 @@ public enum StageState {
 
     ABORTED;
 
-    public static Set<StageState> FINAL_STATES = null;
+    public static final Set<StageState> FINAL_STATES = new HashSet<StageState>();
 
     static {
-        FINAL_STATES = new HashSet<StageState>();
         FINAL_STATES.add(COMPLETED);
         FINAL_STATES.add(TERMINATED);
         FINAL_STATES.add(CANCELLED);

@@ -96,7 +96,7 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 	@Override
     public void failed(final Exception ex) {
 		if(Thread.currentThread().getId() != context.threadId) {
-			LOGGER.debug("COMPLETED: ThreadID mismatch with request thread = {} vs response thread = {}.", context.threadId, Thread.currentThread().getId());
+			LOGGER.debug("FAILED: ThreadID mismatch with request thread = {} vs response thread = {}.", context.threadId, Thread.currentThread().getId());
 		}
 		
         ex.printStackTrace();
@@ -109,7 +109,7 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 	@Override
     public void cancelled() {
 		if(Thread.currentThread().getId() != context.threadId) {
-			LOGGER.debug("COMPLETED: ThreadID mismatch with request thread = {} vs response thread = {}.", context.threadId, Thread.currentThread().getId());
+			LOGGER.debug("CANCELLED: ThreadID mismatch with request thread = {} vs response thread = {}.", context.threadId, Thread.currentThread().getId());
 		}
 
    		collector.onStats(context, false);  

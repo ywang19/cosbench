@@ -28,9 +28,13 @@ public class LaunchResponse extends Response {
     private int interval;
 
     public LaunchResponse() {
-        /* empty */
+    	super();
     }
 
+    public LaunchResponse(int code, String error) {
+    	super(code, error);
+    }
+    
     public int getInterval() {
         return interval;
     }

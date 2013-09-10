@@ -29,8 +29,8 @@ public class ConsumerFileSink extends ConsumerSink<File> {
 		
 		if(!file.exists()){
 			System.out.println("Try to create file " + file.getAbsolutePath() + File.pathSeparator + file.getName());
-			file.getParentFile().mkdirs();
-//			file.createNewFile();
+			if(!file.getParentFile().mkdirs())
+				System.out.println(file.getPath() + " doesn't create as expected.");
 		}
         this.accessfile = new RandomAccessFile(this.sink, "rw");
 	}

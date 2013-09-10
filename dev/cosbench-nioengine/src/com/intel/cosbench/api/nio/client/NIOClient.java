@@ -79,7 +79,7 @@ public class NIOClient implements IOClient {
 		this.collector = listener;
 	}
 
-	public NIOClient(BasicNIOConnPool connPool, int concurrency)
+	public NIOClient(BasicNIOConnPool connPool,  int timeout, int concurrency)
 	{
 		Asserts.check(connPool != null, "Connection Pool shouldn't be null");
 		Asserts.check(concurrency > 0, "concurrency must be a positive number");
@@ -100,25 +100,34 @@ public class NIOClient implements IOClient {
         
         HttpParams params = new SyncBasicHttpParams();
         params
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
-            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 3000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, timeout)
+            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, timeout)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, BUFFER_SIZE)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpTest/1.1")
+            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "COSBench/1.1")
         	.setParameter(CoreProtocolPNames.USER_AGENT, "COSBench/0.3");
-//        	.setParameter(ConnRoutePNames.DEFAULT_PROXY, "http://proxy-prc.intel:com:911");
         
         this.requester = new HttpAsyncRequester(httpproc,
         								new DefaultConnectionReuseStrategy(),
         								params);
 	}
 	
-	public NIOClient(BasicNIOConnPool connPool)
+	public NIOClient(BasicNIOConnPool connPool, int timeout)
 	{
-		this(connPool, connPool.getMaxTotal());
+		this(connPool, timeout, connPool.getMaxTotal());
 	}
-		
+	
+	public void abort()
+	{
+		try {
+			connPool.shutdown(1000);
+			throttler.dispose();
+		}catch(IOException ie) {
+			ie.printStackTrace();
+		}
+	}
+	
 	public void await()
 	{
 		if(throttler != null) 
@@ -169,16 +178,22 @@ public class NIOClient implements IOClient {
 	}
 	
 	private HttpResponse inSync(Future<HttpResponse> future, COSBFutureCallback futureCallback) {
+    	
+		HttpResponse response = null;
     	try {
-        	HttpResponse response = future.get();
+        	response = future.get();
             futureCallback.completed(response); // getValidator().validate(response, context);      
             
             return response;
-    	}catch(Exception ex) {
+    	}catch(ExecutionException ex) {
     		futureCallback.failed(ex);
+    	}catch(InterruptedException ex) {
+    		futureCallback.cancelled();
+    	}catch(CancellationException ex) {
+    		futureCallback.cancelled();
     	}
-    	
-    	return null;
+
+    	return response;
 	}
 
 	public HttpResponse GETorHEAD(HttpHost target, HttpRequest request, ExecContext context, final boolean blocking) throws Exception {
@@ -204,18 +219,7 @@ public class NIOClient implements IOClient {
 	    }
         
         if(blocking)
-        {
-        	try {
-	        	HttpResponse response = future.get();
-	            futureCallback.completed(response); // getValidator().validate(response, context);      
-	            
-	            return response;
-        	}catch(ExecutionException ex) {
-        		futureCallback.failed(ex);
-        	}catch(CancellationException ex) {
-        		futureCallback.cancelled();
-        	}
-        }
+        	return inSync(future, futureCallback);
          
         return null;
     }
@@ -238,7 +242,7 @@ public class NIOClient implements IOClient {
  		final Random random = new Random(System.currentTimeMillis());
         final ContentType contentType = ContentType.TEXT_PLAIN;
         LOGGER.info("Uploading Object with size={}", context.getLength());
- 		ZCProducer<ByteBuffer> producer = new ZCProducer<ByteBuffer>(context.getLength() > 0? new ProducerBufferSource(random, context.getLength()) : null);
+ 		ZCProducer<ByteBuffer> producer = new ZCProducer<ByteBuffer>(context.getLength() > 0? new ProducerBufferSource(contentType, random, context.getLength()) : null);
  		request.setEntity(producer.getEntity());
     	
  		// initialize future callback.
@@ -256,18 +260,7 @@ public class NIOClient implements IOClient {
 	    }
 	    
 	    if(blocking)
-	    {
-        	try {
-	        	HttpResponse response = future.get();
-	            futureCallback.completed(response); // getValidator().validate(response, context);      
-	            
-	            return response;
-        	}catch(ExecutionException ex) {
-        		futureCallback.failed(ex);
-        	}catch(CancellationException ex) {
-        		futureCallback.cancelled();
-        	}
-	    }
+        	return inSync(future, futureCallback);
 			
 	    return null;
     }
@@ -301,18 +294,7 @@ public class NIOClient implements IOClient {
         }
         
         if(blocking)
-        {
-        	try {
-	        	HttpResponse response = future.get();
-	            futureCallback.completed(response); // getValidator().validate(response, context);      
-	            
-	            return response;
-        	}catch(ExecutionException ex) {
-        		futureCallback.failed(ex);
-        	}catch(CancellationException ex) {
-        		futureCallback.cancelled();
-        	}
-        }
+        	return inSync(future, futureCallback);
         
 		return null;
     }

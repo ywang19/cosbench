@@ -52,7 +52,7 @@ public class Snapshot {
         return report;
     }
     
-    public Date getTimestamp() {
+    public final Date getTimestamp() {
         return timestamp;
     }
 

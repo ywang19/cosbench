@@ -58,7 +58,7 @@ public class WorkloadContext implements WorkloadInfo {
     }
 
     @Override
-    public Date getSubmitDate() {
+    public final Date getSubmitDate() {
         return submitDate;
     }
 
@@ -67,7 +67,7 @@ public class WorkloadContext implements WorkloadInfo {
     }
 
     @Override
-    public Date getStartDate() {
+    public final Date getStartDate() {
         return startDate;
     }
 
@@ -76,7 +76,7 @@ public class WorkloadContext implements WorkloadInfo {
     }
 
     @Override
-    public Date getStopDate() {
+    public final Date getStopDate() {
         return stopDate;
     }
 
@@ -106,8 +106,10 @@ public class WorkloadContext implements WorkloadInfo {
     private void fireWorkloadStopped() {
         if (report == null)
             report = mergeReport();
-        for (WorkloadListener listener : listeners)
+        for (WorkloadListener listener : listeners) {
+        	System.out.println("stopping istener: " + listener.toString());
             listener.workloadStopped(this);
+        }
     }
 
     private Report mergeReport() {
@@ -188,6 +190,7 @@ public class WorkloadContext implements WorkloadInfo {
         for (StageInfo info : stageRegistry)
             if (info.getId().equals(id))
                 return info;
+        System.out.println("!!!Can't get stage: " + id);
         return null;
     }
 

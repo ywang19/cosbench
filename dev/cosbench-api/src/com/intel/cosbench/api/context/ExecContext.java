@@ -1,7 +1,6 @@
 package com.intel.cosbench.api.context;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -60,11 +59,13 @@ public class ExecContext extends Context {
 	public void setResponse(HttpResponse response) {
 		this.response = response;
 		
-		if(this.response != null) {
-			Header header = this.response.getFirstHeader(HTTP.CONTENT_LEN);
-			if(header != null) {
-				length += Long.parseLong(header.getValue());
-				System.out.println("Response length = " + (this.response.getEntity() != null? this.response.getEntity().getContentLength(): 0));
+		if(this.length <= 0) {
+			if(this.response != null) {
+				Header header = this.response.getFirstHeader(HTTP.CONTENT_LEN);
+				if(header != null) {
+					length = Long.parseLong(header.getValue());
+					System.out.println("Response length = " + (this.response.getEntity() != null? this.response.getEntity().getContentLength(): 0));
+				}
 			}
 		}
 	}

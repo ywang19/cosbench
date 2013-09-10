@@ -51,7 +51,7 @@ public class ProducerRandomInputStream extends NullInputStream {
                 buffer[i] = (byte) (RandomUtils.nextInt(random, 26) + 'a');
     }
 
-    public byte[] getBuffer() {
+    public final byte[] getBuffer() {
     	return buffer;
     }
     

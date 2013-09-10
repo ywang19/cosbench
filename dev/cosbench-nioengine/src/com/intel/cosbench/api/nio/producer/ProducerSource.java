@@ -3,7 +3,7 @@ package com.intel.cosbench.api.nio.producer;
 import java.io.IOException;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
+//import org.apache.http.HttpResponse;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -17,11 +17,11 @@ import org.apache.http.nio.entity.HttpAsyncContentProducer;
  * @param <T>
  */
 public abstract class ProducerSource<T> implements HttpAsyncContentProducer {
-	protected HttpResponse response;
+//	protected HttpResponse response;
 	protected ContentType contentType;
 
-	public ProducerSource() {
-		/* empty */
+	public ProducerSource(final ContentType contentType) {
+		this.contentType = contentType;
 	}
 
 	ContentType getContentType() {

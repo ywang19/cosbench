@@ -43,7 +43,7 @@ public class Histogram implements Cloneable {
         /* empty */
     }
 
-    public long[] get_60() {
+    public final long[] get_60() {
         return _60;
     }
 
@@ -51,7 +51,7 @@ public class Histogram implements Cloneable {
         this._60 = _60;
     }
 
-    public long[] get_80() {
+    public final long[] get_80() {
         return _80;
     }
 
@@ -59,7 +59,7 @@ public class Histogram implements Cloneable {
         this._80 = _80;
     }
 
-    public long[] get_90() {
+    public final long[] get_90() {
         return _90;
     }
 
@@ -67,7 +67,7 @@ public class Histogram implements Cloneable {
         this._90 = _90;
     }
 
-    public long[] get_95() {
+    public final long[] get_95() {
         return _95;
     }
 
@@ -75,7 +75,7 @@ public class Histogram implements Cloneable {
         this._95 = _95;
     }
 
-    public long[] get_99() {
+    public final long[] get_99() {
         return _99;
     }
 
@@ -83,7 +83,7 @@ public class Histogram implements Cloneable {
         this._99 = _99;
     }
 
-    public long[] get_100() {
+    public final long[] get_100() {
         return _100;
     }
 
@@ -91,7 +91,7 @@ public class Histogram implements Cloneable {
         this._100 = _100;
     }
 
-    public int[] getHistoData() {
+    public final int[] getHistoData() {
         return histoData;
     }
 

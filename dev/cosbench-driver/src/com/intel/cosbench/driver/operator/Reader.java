@@ -106,8 +106,8 @@ public class Reader extends AbstractOperator {
             byte buf1[] = new byte[4096];
             byte buf2[] = new byte[4096];
 
-            String storedHash = new String();
-            String calculatedHash = new String();
+            String storedHash = "";
+            String calculatedHash = "";
             int br1 = in.read(buf1);
 
             if (br1 <= hashLen) {

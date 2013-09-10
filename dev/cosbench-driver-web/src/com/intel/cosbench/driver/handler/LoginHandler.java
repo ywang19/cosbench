@@ -29,7 +29,7 @@ class LoginHandler extends MissionHandler {
         String id = info.getId();
         driver.login(id);
         if (!info.getState().equals(AUTHED))
-            return new Response(false, "fail to login - see log for details");
+            return new LoginResponse(501, "fail to login - see log for details");
         return new LoginResponse();
     }
 

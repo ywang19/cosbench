@@ -22,12 +22,12 @@ import static com.intel.cosbench.api.storage.StorageConstants.*;
 import java.io.*;
 import java.util.*;
 
-import org.apache.http.HttpResponse;
+//import org.apache.http.HttpResponse;
 
 import com.intel.cosbench.api.context.*;
 import com.intel.cosbench.api.ioengine.IOEngineAPI;
 import com.intel.cosbench.api.stats.StatsListener;
-import com.intel.cosbench.api.validator.ResponseValidator;
+//import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
 
@@ -47,7 +47,7 @@ public class NoneStorage implements StorageAPI {
     
     protected IOEngineAPI ioengine;
     protected StatsListener listener;
-    protected ResponseValidator validator;
+//    protected ResponseValidator validator;
 
     /* configurations */
     private boolean logging = false; // enable logging
@@ -153,9 +153,9 @@ public class NoneStorage implements StorageAPI {
 		this.listener = listener;		
 	}
 
-	@Override
-	public void setValidator(ResponseValidator validator) {
-		this.validator = validator;
-	}
+//	@Override
+//	public void setValidator(ResponseValidator validator) {
+//		this.validator = validator;
+//	}
 
 }

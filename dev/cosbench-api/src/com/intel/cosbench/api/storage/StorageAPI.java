@@ -21,12 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
+//import org.apache.http.HttpResponse;
 
 import com.intel.cosbench.api.context.*;
 import com.intel.cosbench.api.ioengine.IOEngineAPI;
 import com.intel.cosbench.api.stats.StatsListener;
-import com.intel.cosbench.api.validator.ResponseValidator;
+//import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
 
@@ -37,10 +37,10 @@ public interface StorageAPI {
 	 */
 	public void setListener(StatsListener listener);
 	
-	/**
-	 * 
-	 */
-	public void setValidator(ResponseValidator validator);
+//	/**
+//	 * 
+//	 */
+//	public void setValidator(ResponseValidator validator);
 	
 	/**
 	 * Initializes a <code>IOEngine-API</code>.

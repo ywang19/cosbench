@@ -50,7 +50,7 @@ public class Sample {
 //        this.sampleType = opType;
     }
 
-    public Date getTimestamp() {
+    public final Date getTimestamp() {
         return timestamp;
     }
 

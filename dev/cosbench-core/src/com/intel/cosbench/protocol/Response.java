@@ -29,15 +29,15 @@ public class Response {
     private boolean succ;
     private String error;
 
-    public Response() {
+    protected Response() {
         this.code = 200;
         this.succ = true;
     }
 
-    public Response(int code) {
-        this.code = code;
-        this.succ = false;
-    }
+//    public Response(int code) {
+//        this.code = code;
+//        this.succ = false;
+//    }
     
     public Response(int code, String error) {
         this.code = code;
@@ -45,11 +45,11 @@ public class Response {
         this.error = error;
     }
 
-    public Response(boolean succ, String error) {
-        this.code = 200;
-        this.succ = succ;
-        this.error = error;
-    }
+//    public Response(boolean succ, String error) {
+//        this.code = 200;
+//        this.succ = succ;
+//        this.error = error;
+//    }
 
     public int getCode() {
         return code;
@@ -63,9 +63,9 @@ public class Response {
         return succ;
     }
 
-    public void setSucc(boolean succ) {
-        this.succ = succ;
-    }
+//    public void setSucc(boolean succ) {
+//        this.succ = succ;
+//    }
 
     public String getError() {
         return error;

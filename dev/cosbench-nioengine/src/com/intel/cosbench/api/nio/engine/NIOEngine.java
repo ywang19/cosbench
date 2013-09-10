@@ -56,8 +56,9 @@ import com.intel.cosbench.api.nio.client.NIOClient;
  */
 public class NIOEngine extends NoneIOEngine {
 
-	private int channels = IOENGINE_CHANNELS_DEFAULT;		// the number of working channel.
-	private int concurrency = IOENGINE_CONCURRENCY_DEFAULT; 	// the queue or pool size in max.
+	private int channels = IOENGINE_CHANNELS_DEFAULT;		// how many io channel reactors will be used to serve i/o.
+	private int concurrency = IOENGINE_CONCURRENCY_DEFAULT; 	// how many outstanding io can support.
+	private int connTimeout = IOENGINE_CONNECTION_TIMEOUT_DEFAULT; // the connection timeout.
 
 	private ConnectingIOReactor ioReactor;
 	private IOEventDispatch ioEventDispatch;
@@ -90,11 +91,11 @@ public class NIOEngine extends NoneIOEngine {
 
     @Override
 	public NIOClient newClient() {
-    	return new NIOClient(getConnPool());
+    	return new NIOClient(getConnPool(), connTimeout);
     }
     
     public NIOClient newClient(int concurrency) {
-    	return new NIOClient(getConnPool(), concurrency);
+    	return new NIOClient(getConnPool(), connTimeout, concurrency);
     }
         
     @Override
@@ -106,13 +107,12 @@ public class NIOEngine extends NoneIOEngine {
         {
 			channels = config.getInt(IOENGINE_CHANNELS_KEY, IOENGINE_CHANNELS_DEFAULT);
 			concurrency = config.getInt(IOENGINE_CONCURRENCY_KEY, IOENGINE_CONCURRENCY_DEFAULT);
-        } else {
-	          channels = 2;	// how many io channel reactors will be used to serve i/o.
-	          concurrency = 4;	// how many outstanding io can support.
-        }
-
+			connTimeout = config.getInt(IOENGINE_CONNECTION_TIMEOUT_KEY, IOENGINE_CONNECTION_TIMEOUT_DEFAULT);
+        } 
+        
         parms.put(IOENGINE_CHANNELS_KEY, channels);
-        parms.put(IOENGINE_CONCURRENCY_KEY, concurrency);
+		parms.put(IOENGINE_CONCURRENCY_KEY, concurrency);
+        parms.put(IOENGINE_CONNECTION_TIMEOUT_KEY, connTimeout);
                 
         logger.info("using IOEngine config: {}", parms);
         
@@ -122,9 +122,11 @@ public class NIOEngine extends NoneIOEngine {
 	        ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler, ConnectionConfig.DEFAULT);
 	        ioReactor = new DefaultConnectingIOReactor(IOReactorConfig.custom()
 	        		.setIoThreadCount(channels)
+	        		.setConnectTimeout(connTimeout)
+	        		.setSoTimeout(connTimeout)
 	        		.build(), 
 	        		null);
-	        connPool = new BasicNIOConnPool(ioReactor, ConnectionConfig.DEFAULT);
+	        connPool = new BasicNIOConnPool(ioReactor, connTimeout, ConnectionConfig.DEFAULT);
 	        connPool.setDefaultMaxPerRoute(concurrency);
 	        connPool.setMaxTotal(concurrency);
         }catch(Exception e) {
@@ -149,7 +151,7 @@ public class NIOEngine extends NoneIOEngine {
     public boolean shutdown() throws IOEngineException {
     	
     	try {    		
-    		connPool.shutdown(100);
+    		connPool.shutdown(1000);
     		ioReactor.shutdown();
     	}catch(IOException e) {
     		logger.error("Failed to shut down I/O Reactor.");

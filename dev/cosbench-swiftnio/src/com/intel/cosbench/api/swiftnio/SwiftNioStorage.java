@@ -23,7 +23,6 @@ import java.io.*;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
@@ -34,14 +33,11 @@ import org.apache.http.util.EntityUtils;
 import com.intel.cosbench.api.nio.client.NIOClient;
 
 import com.intel.cosbench.api.context.ExecContext;
-import com.intel.cosbench.api.nio.engine.NIOEngine;
 import com.intel.cosbench.api.stats.StatsListener;
 import com.intel.cosbench.api.storage.*;
 //import com.intel.cosbench.client.http.HttpClientUtil;
 import com.intel.cosbench.client.swiftnio.*;
 import com.intel.cosbench.config.Config;
-import com.intel.cosbench.log.LogFactory;
-import com.intel.cosbench.log.LogManager;
 import com.intel.cosbench.log.Logger;
 
 /**
@@ -126,9 +122,10 @@ class SwiftNioStorage extends NoneStorage {
     @Override
     public void abort() {
         super.abort();
-//        client.abort();
+        nioclient.abort();
     }
 
+    /*
     public static void testGetObject()
     {
        	NIOEngine ioengine = new NIOEngine();
@@ -229,6 +226,7 @@ class SwiftNioStorage extends NoneStorage {
     	testGetObject();
     	
     }
+    */
     
     @Override
     public void getObject(final String opType, String container, String object, Config config) throws StorageException, IOException {
@@ -436,7 +434,6 @@ class SwiftNioStorage extends NoneStorage {
     public void deleteObject(final String opType, String container, String object, Config config) throws StorageException, IOException {
         super.deleteObject(opType, container, object, config);
 
-        HttpResponse response = null;
 		if(nioclient == null)
 		{
 			logger.error("nio client is not initialized yet!");
@@ -465,10 +462,7 @@ class SwiftNioStorage extends NoneStorage {
         } catch (Exception e) {
         	e.printStackTrace();
             throw new StorageException(e);
-        } finally {
-            if (response != null)
-                EntityUtils.consume(response.getEntity());
-        }
+        } 
         
     }
 

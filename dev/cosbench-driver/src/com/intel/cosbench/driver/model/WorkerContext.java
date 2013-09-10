@@ -144,7 +144,9 @@ public class WorkerContext implements WorkerInfo, Session {
     }
     
     public void waitForCompletion(long interval) {
+//    	storageApi.abort();
     	stats.waitForCompletion(interval);    	
+    	
     }
 
     public void setError(boolean error) {

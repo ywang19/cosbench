@@ -32,13 +32,18 @@ public class CloseHandler extends MissionHandler {
     protected Response process(MissionInfo info) {
         String id = info.getId();
         driver.close(id);
-        if (info.getState().equals(TERMINATED))
-            return new Response(false, "close failed");
+//        if (info.getState().equals(TERMINATED))
+//            return new Response(501, "close failed");
         return getResponse(info);
     }
 
     private Response getResponse(MissionInfo info) {
-        CloseResponse response = new CloseResponse();
+        CloseResponse response = null; 
+        if (info.getState().equals(TERMINATED))
+        	response = new CloseResponse(501, "close failed");
+        else
+        	response = new CloseResponse();
+        
         Report report = info.getReport();
         response.setReport(Arrays.asList(report.getAllMetrics()));
         String log = null;

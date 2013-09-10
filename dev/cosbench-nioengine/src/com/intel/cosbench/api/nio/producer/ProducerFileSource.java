@@ -10,6 +10,7 @@ import java.nio.channels.FileChannel;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.ContentEncoderChannel;
@@ -26,14 +27,13 @@ import org.apache.http.util.Args;
  */
 @NotThreadSafe
 public class ProducerFileSource extends ProducerSource<File> {
-
 	private final File file;
 	private final RandomAccessFile accessfile;
 	private FileChannel fileChannel;
 	private long idx = -1;
 
-	public ProducerFileSource(final File file) throws FileNotFoundException {
-		super();
+	public ProducerFileSource(final ContentType contentType, final File file) throws FileNotFoundException {
+		super(contentType);
 		Args.notNull(file, "Source file");
 		this.file = file;
 		this.accessfile = new RandomAccessFile(file, "r");

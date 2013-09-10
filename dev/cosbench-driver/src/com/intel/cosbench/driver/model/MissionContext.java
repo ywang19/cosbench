@@ -68,7 +68,7 @@ public class MissionContext implements MissionInfo {
     }
 
     @Override
-    public Date getDate() {
+    public final Date getDate() {
         return date;
     }
 
@@ -191,7 +191,7 @@ public class MissionContext implements MissionInfo {
 
     @Override
     public Report getReport() {
-        return report != null ? report : new Report();
+        return report; // != null ? report : new Report();
     }
 
 //    public void setReport(Report report) {

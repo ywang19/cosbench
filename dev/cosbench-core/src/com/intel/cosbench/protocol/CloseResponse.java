@@ -17,6 +17,7 @@ limitations under the License.
 
 package com.intel.cosbench.protocol;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.intel.cosbench.bench.Metrics;
@@ -33,11 +34,15 @@ public class CloseResponse extends Response {
     private String driverLog; /* driver log */
 
     public CloseResponse() {
-        /* empty */
+        super();
     }
 
+    public CloseResponse(int code, String error) {
+    	super(code,error);
+    }
+    
     public List<Metrics> getReport() {
-        return report;
+    	return report != null? report: new ArrayList<Metrics>();
     }
 
     public void setReport(List<Metrics> report) {

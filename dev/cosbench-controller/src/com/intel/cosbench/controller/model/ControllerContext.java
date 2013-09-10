@@ -30,6 +30,7 @@ public class ControllerContext implements ControllerInfo {
     private String name;
     private String url;
     private int concurrency;
+    private int timeout;
     private DriverRegistry driverRegistry;
 
     public ControllerContext() {
@@ -62,6 +63,14 @@ public class ControllerContext implements ControllerInfo {
         this.concurrency = concurrency;
     }
 
+    public int getTimeout() {
+    	return timeout;
+    }
+    
+    public void setTimeout(int timeout) {
+    	this.timeout = timeout;
+    }
+    
     public DriverRegistry getDriverRegistry() {
         return driverRegistry;
     }

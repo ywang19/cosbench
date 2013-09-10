@@ -29,13 +29,18 @@ public class QueryHandler extends MissionHandler {
 
     @Override
     protected Response process(MissionInfo info) {
-        if (isStopped(info.getState()))
-            return new Response(false, "mission aleady stopped");
+//        if (isStopped(info.getState()))
+//            return new Response(501, "mission aleady stopped");
         return getResponse(info);
     }
 
     private Response getResponse(MissionInfo info) {
-        QueryResponse response = new QueryResponse();
+        QueryResponse response = null;
+	    if (isStopped(info.getState())) {
+	    	response = new QueryResponse(501, "mission already stopped");
+	    } else 
+	    	response = new QueryResponse();
+	    
         Snapshot snapshot = info.getSnapshot();
         response.setTime(snapshot.getTimestamp());
         response.setVersion(snapshot.getVersion());

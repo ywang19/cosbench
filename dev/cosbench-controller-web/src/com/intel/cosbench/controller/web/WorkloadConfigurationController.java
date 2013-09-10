@@ -28,18 +28,11 @@ import org.springframework.web.servlet.View;
 
 import com.intel.cosbench.config.*;
 import com.intel.cosbench.config.castor.*;
-import com.intel.cosbench.service.ControllerService;
 import com.intel.cosbench.web.*;
 
 public class WorkloadConfigurationController extends AbstractController {
 
     private static final View XML = new XMLView();    
-
-    protected ControllerService controller;
-
-    public void setController(ControllerService controller) {
-        this.controller = controller;
-    }
     
     private static class XMLView implements View {
 
@@ -244,11 +237,11 @@ public class WorkloadConfigurationController extends AbstractController {
 	private ArrayList<Object> constructNormalStage(HttpServletRequest req) {
 		if (req.getParameterValues("normal.checked") != null) {
 
-			String workStageName = new String("normal");
+			String workStageName = "normal";
 			ArrayList<Object> workStageList = new ArrayList<Object>();
 			for (int i = 0; i < req.getParameterValues("normal.checked").length; i++) {
 				if (i > 0) {
-					workStageName = new String("normal" + i);
+					workStageName = "normal" + i;
 				}
 				Stage stage = new Stage(workStageName);
 				Work work = new Work(workStageName, "normal");

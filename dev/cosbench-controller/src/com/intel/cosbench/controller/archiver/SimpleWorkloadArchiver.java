@@ -40,8 +40,10 @@ public class SimpleWorkloadArchiver implements WorkloadArchiver {
     private static final File ROOT_DIR = new File("archive");
 
     static {
-        if (!ROOT_DIR.exists())
-            ROOT_DIR.mkdirs();
+        if (!ROOT_DIR.exists()) {
+            if(!ROOT_DIR.mkdirs())
+            	LOGGER.warn(ROOT_DIR + " doesn't create as expected.");
+        }
         String path = ROOT_DIR.getAbsolutePath();
         LOGGER.info("using {} for storing workload archives", path);
     }
@@ -71,7 +73,8 @@ public class SimpleWorkloadArchiver implements WorkloadArchiver {
 
     private void doArchive(WorkloadInfo info, File runDir) throws IOException {
         exportWorkloadRun(info);
-        runDir.mkdir();
+        if(!runDir.mkdir())
+        	LOGGER.warn(runDir + " doesn't create as expected.");
         exportWorkload(info, runDir);
         exportLatency(info, runDir);
         for (StageInfo sInfo : info.getStageInfos())

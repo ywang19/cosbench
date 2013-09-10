@@ -20,6 +20,8 @@ package com.intel.cosbench.exporter;
 import static com.intel.cosbench.exporter.Formats.*;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import com.intel.cosbench.bench.*;
@@ -31,7 +33,7 @@ import com.intel.cosbench.bench.*;
  *
  */
 class CSVStageExporter extends AbstractStageExporter {
-
+	
     public CSVStageExporter() {
         /* empty */
     }
@@ -63,6 +65,7 @@ class CSVStageExporter extends AbstractStageExporter {
     protected void writeMetrics(Writer writer, Snapshot snapshot)
             throws IOException {
         StringBuilder buffer = new StringBuilder();
+        DateFormat TIME = new SimpleDateFormat("HH:mm:ss");
         buffer.append(TIME.format(snapshot.getTimestamp())).append(',');
         Report report = snapshot.getReport();
 

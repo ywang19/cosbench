@@ -31,7 +31,7 @@ public class SwiftException extends Exception {
         this.httpStatusLine = httpStatusLine;
     }
 
-    public Header[] getHttpHeaders() {
+    public final Header[] getHttpHeaders() {
         return httpHeaders;
     }
 
