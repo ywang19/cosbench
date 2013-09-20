@@ -28,12 +28,10 @@
 	
 	<bean id="configPageController" name="/config.html"
 		class="com.intel.cosbench.controller.web.ConfigPageController">
-		<property name="controller" ref="controller" />
 	</bean>
 	
 	<bean id="workloadConfigurationController" name="/config-workload.do"
 		class="com.intel.cosbench.controller.web.WorkloadConfigurationController">
-		<property name="controller" ref="controller" />
 	</bean>	
 
 	<bean id="workloadPageController" name="/workload.html"

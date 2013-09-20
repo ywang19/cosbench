@@ -20,10 +20,11 @@ package com.intel.cosbench.controller.web;
 import javax.servlet.http.*;
 
 import org.springframework.web.servlet.ModelAndView;
+
 import com.intel.cosbench.web.AbstractController;
 
 public class ConfigPageController extends AbstractController {
-
+    
     @Override
     protected ModelAndView process(HttpServletRequest req,
             HttpServletResponse res) {
