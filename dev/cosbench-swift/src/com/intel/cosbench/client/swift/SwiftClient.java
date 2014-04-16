@@ -17,7 +17,7 @@ limitations under the License.
 
 package com.intel.cosbench.client.swift;
 
-import static com.intel.cosbench.client.swift.SwiftConstants.X_AUTH_TOKEN;
+import static com.intel.cosbench.client.swift.SwiftConstants.*;
 import static org.apache.http.HttpStatus.*;
 
 import java.io.*;
@@ -29,14 +29,16 @@ import org.apache.http.client.methods.*;
 import org.apache.http.entity.*;
 
 import com.intel.cosbench.client.http.HttpClientUtil;
+import com.intel.cosbench.log.*;
 
 public class SwiftClient {
 
-    private static boolean REPORT_DELETE_ERROR = false;
+	private static boolean REPORT_DELETE_ERROR = false;
 
     /* user context */
     private String authToken;
     private String storageURL;
+    private String policy;
 
     /* HTTP client */
     private HttpClient client;
@@ -67,9 +69,10 @@ public class SwiftClient {
         method = null;
     }
 
-    public void init(String authToken, String storageURL) {
+    public void init(String authToken, String storageURL, String policy) {
         this.authToken = authToken;
         this.storageURL = storageURL;
+        this.policy = policy;
     }
 
     public SwiftAccount getAccountInfo() throws IOException, SwiftException {
@@ -119,13 +122,22 @@ public class SwiftClient {
             SwiftException {
         SwiftResponse response = null;
         try {
+		Logger logger = LogFactory.getSystemLogger();
+		logger.info("Creating container with auth_token " + authToken);
+
             method = HttpClientUtil.makeHttpPut(getContainerPath(container));
             method.setHeader(X_AUTH_TOKEN, authToken);
+            if(policy != null)
+            	method.setHeader(X_STORAGE_POLICY, policy);
             response = new SwiftResponse(client.execute(method));
-            if (response.getStatusCode() == SC_CREATED)
+            if (response.getStatusCode() == SC_CREATED) {
+		logger.info("SUCCESS");
                 return;
-            if (response.getStatusCode() == SC_ACCEPTED)
+            }
+            if (response.getStatusCode() == SC_ACCEPTED) {
+		logger.info("SUCCESS");
                 return;
+            }
             throw new SwiftException("unexpected return from server",
                     response.getResponseHeaders(), response.getStatusLine());
         } finally {

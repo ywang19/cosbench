@@ -37,11 +37,12 @@ class CSVMatrixExporter extends AbstractMatrixExporter {
     protected void writeHeader(Writer writer) throws IOException {
         StringBuilder buffer = new StringBuilder();
         buffer.append("Id").append(',');
-        buffer.append("Op-Type").append(',');
+        buffer.append("Op-Name").append(',');
         buffer.append("Op-Count").append(',');
         buffer.append("Byte-Count").append(',');
         buffer.append("Worker-Count").append(',');
         buffer.append("Avg-ResTime").append(',');
+        buffer.append("Avg-ProcTime").append(',');
         buffer.append("60%-ResTime").append(',');
         buffer.append("80%-ResTime").append(',');
         buffer.append("90%-ResTime").append(',');
@@ -61,12 +62,12 @@ class CSVMatrixExporter extends AbstractMatrixExporter {
         StringBuilder buffer = new StringBuilder();
         String uuid = workload.getId() + '-' + stage.getId() + '-' + idx;
         buffer.append(uuid).append(',');
-        String opt = metrics.getOpType();
+        String opt = metrics.getOpName();
         String spt = metrics.getSampleType();
         if (spt.equals(opt))
             buffer.append(opt);
         else
-            buffer.append(opt + '-' + spt);
+        	buffer.append(opt + '-' + spt);
         buffer.append(',');
         buffer.append(metrics.getSampleCount()).append(',');
         buffer.append(metrics.getByteCount()).append(',');
@@ -77,12 +78,20 @@ class CSVMatrixExporter extends AbstractMatrixExporter {
         else
             buffer.append("N/A");
         buffer.append(',');
+
+        double pt = r - metrics.getAvgXferTime();
+        if (pt > 0)
+        	buffer.append(NUM.format(pt));
+        else
+        	buffer.append("N/A");
+        buffer.append(',');
+
         writeLatencyInfo(buffer, metrics.getLatency());
         buffer.append(NUM.format(metrics.getThroughput())).append(',');
         buffer.append(NUM.format(metrics.getBandwidth())).append(',');
-        double t = (double) metrics.getTotalSampleCount();
+        double t = (double) metrics.getRatio();
         if (t > 0)
-            buffer.append(RATIO.format(metrics.getSampleCount() / t));
+            buffer.append(RATIO.format(metrics.getRatio()));
         else
             buffer.append("N/A");
         buffer.append(',');
@@ -113,7 +122,7 @@ class CSVMatrixExporter extends AbstractMatrixExporter {
             Metrics metrics) throws IOException {
         for (Work work : stage.getStage())
             for (Operation op : work) {
-                if (op.getType().equals(metrics.getOpType())) {
+                if (op.getId().equals(metrics.getOpId())) {
                     buffer.append(op.getRatio()).append('%').append(' ');
                     String config = op.getConfig();
                     config = config.replaceAll(",", "-").replaceAll(";", " ");

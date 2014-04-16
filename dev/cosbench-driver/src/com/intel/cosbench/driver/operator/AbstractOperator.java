@@ -31,19 +31,37 @@ abstract class AbstractOperator implements Operator {
     private static final Logger LOGGER = LogFactory.getSystemLogger();
 
     protected Config config;
+    protected String id;
+    protected String name;
+    protected int ratio;
 
     @Override
     public String getName() {
-        return getOpType();
+        return name;
     }
 
-    protected void init(String division, Config config) {
+    protected void init(String id, int ratio, String division, Config config) {
         this.config = config;
+        this.id = id;
+        this.ratio = ratio;
+		name = config.get("name", getOpType());
     }
-
+    
+    abstract public String getOpType();
+    
+    @Override
+    public int getRatio() {
+    	return ratio;
+    }
+    
     @Override
     public String getSampleType() {
         return getOpType();
+    }
+    
+    @Override
+    public String getId(){
+    	return id;
     }
 
     @Override
@@ -51,6 +69,20 @@ abstract class AbstractOperator implements Operator {
         int idx = session.getIndex();
         int all = session.getTotalWorkers();
         operate(idx, all, session);
+    }
+    
+    protected static void doLogInfo(Logger logger, String message) {
+        if (logger != null)
+            logger.info(message);
+        else
+            AbstractOperator.LOGGER.info(message);
+    }
+    
+    protected static void doLogDebug(Logger logger, String message) {
+        if (logger != null)
+            logger.debug(message);
+        else
+            AbstractOperator.LOGGER.debug(message);
     }
 
     protected static void doLogWarn(Logger logger, String message) {

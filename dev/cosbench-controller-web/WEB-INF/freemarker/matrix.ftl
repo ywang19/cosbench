@@ -18,7 +18,8 @@
   <h2>Performance Matrix</h2>
   <h3>Filters</h3>
   <div class="form">
-    <form name="perf-matrix" action="matrix.html" method="GET" onreset="window.location.href='matrix.html?ops=read&ops=write&ops=delete&metrics=rt&rthisto=_95rt&metrics=t&metrics=succ'">
+    <form name="perf-matrix" action="matrix.html" method="GET" onreset="window.location.href='matrix.html?type=${type}&ops=read&ops=write&ops=delete&metrics=rt&rthisto=_95rt&metrics=t&metrics=succ'">
+      <input name="type" type="hidden" value="${type}">
       <span class="label">Operations:</span>
       <span class="checkbox"><input name="ops" type="checkbox" value="read"
         <#if allOps!false || read!false >checked="true"</#if> /></span> Read
@@ -42,6 +43,8 @@
         <#if allMetrics!false || bc!false >checked="true"</#if> /></span> Byte Count
       <span class="checkbox"><input name="metrics" type="checkbox" value="rt"
         <#if allMetrics!false || rt!false >checked="true"</#if> /></span> Avg ResTime
+      <span class="checkbox"><input name="metrics" type="checkbox" value="pt"
+        <#if allMetrics!false || pt!false >checked="true"</#if> /></span> Avg ProcTime
       <span class="checkbox"><input name="metrics" type="checkbox" value="t"
         <#if allMetrics!false || t!false >checked="true"</#if> /></span> Throughput
       <span class="checkbox"><input name="metrics" type="checkbox" value="bw"
@@ -85,6 +88,7 @@
       <#if _95rt!false ><th>95%-ResTime</th></#if>
       <#if _99rt!false ><th>99%-ResTime</th></#if>
       <#if _100rt!false ><th>100%-ResTime</th></#if>
+      <#if allMetrics!false || pt!false ><th>Avg-ProcTime</th></#if>
       <#if allMetrics!false || t!false ><th>Throughput</th></#if>
       <#if allMetrics!false || bw!false ><th>Bandwidth</th></#if>
       <#if allMetrics!false || succ!false ><th>Succ-Ratio</th></#if>
@@ -222,6 +226,16 @@
               </#if>
             </td>
             </#if>
+            <#if allMetrics!false || pt!false >
+            <td>
+              <#assign procTime = mInfo.avgResTime - mInfo.avgXferTime>
+              <#if procTime == 0>
+                N/A
+              <#else>
+                ${procTime?string("0.##")} ms
+              </#if>
+            </td>
+            </#if>
             <#if allMetrics!false || t!false >
             <td>${mInfo.throughput?string("0.##")} op/s</td>
             </#if>
@@ -251,7 +265,7 @@
               <#if mInfo.totalSampleCount == 0 >
                 N/A
               <#else>
-                <#assign sRatio = mInfo.sampleCount / mInfo.totalSampleCount >
+                <#assign sRatio = mInfo.ratio >
                 ${sRatio?string("0.##%")}
               </#if>
             </td>
@@ -279,9 +293,9 @@
     </#list>
   </table>
   <p>
-    <a href="matrix.html?ops=read&ops=write&ops=delete&metrics=rt&rthisto=_95rt&others=cfg">show RT only</a>
-    <a href="matrix.html?ops=read&ops=write&ops=delete&metrics=t&others=cfg">show T only</a>
-    <a href="matrix.html?ops=read&ops=write&ops=delete&metrics=bw&others=cfg">show BW only</a>
+    <a href="matrix.html?type=${type}&ops=read&ops=write&ops=delete&metrics=rt&rthisto=_95rt&others=cfg">show RT only</a>
+    <a href="matrix.html?type=${type}&ops=read&ops=write&ops=delete&metrics=t&others=cfg">show T only</a>
+    <a href="matrix.html?type=${type}&ops=read&ops=write&ops=delete&metrics=bw&others=cfg">show BW only</a>
   </p>
   <p><a href="index.html">go back to index</a></p>
 </div> <#-- end of content -->

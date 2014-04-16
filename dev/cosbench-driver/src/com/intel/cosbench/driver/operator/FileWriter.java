@@ -19,18 +19,22 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.CountingInputStream;
 
 import com.intel.cosbench.api.storage.StorageInterruptedException;
 import com.intel.cosbench.bench.Result;
 import com.intel.cosbench.bench.Sample;
 import com.intel.cosbench.config.Config;
+import com.intel.cosbench.driver.generator.XferCountingInputStream;
 import com.intel.cosbench.driver.util.ContainerPicker;
 import com.intel.cosbench.driver.util.FilePicker;
+import com.intel.cosbench.driver.util.HashUtil;
+import com.intel.cosbench.driver.util.HashedFileInputStream;
 import com.intel.cosbench.service.AbortedException;
 
 /**
@@ -49,14 +53,15 @@ class FileWriter extends AbstractOperator {
     private File folder;
 
     private File[] listOfFiles;
+    private boolean hashCheck = false;
 
     public FileWriter() {
         /* empty */
     }
 
     @Override
-    protected void init(String division, Config config) {
-        super.init(division, config);
+    protected void init(String id, int ratio, String division, Config config) {
+        super.init(id, ratio, division, config);
         contPicker.init(division, config);
         String filepath = config.get("files");
         folder = new File(filepath);
@@ -64,8 +69,10 @@ class FileWriter extends AbstractOperator {
             throw new RuntimeException("Folder " + filepath + " does not exist.");
         }
         listOfFiles = folder.listFiles();
+        Arrays.sort(listOfFiles);
         String range = "(1," + listOfFiles.length + ")";
         filePicker.init(range, config);
+        hashCheck = config.getBoolean("hashCheck", false);
     }
 
     @Override
@@ -78,7 +85,8 @@ class FileWriter extends AbstractOperator {
         Sample sample;
         if (!folder.canRead()) {
             doLogErr(session.getLogger(), "fail to perform file filewrite operation, can not read " + folder.getAbsolutePath());
-            sample = new Sample(new Date(), OP_TYPE, false);
+			sample = new Sample(new Date(), getId(), getOpType(),
+					getSampleType(), getName(), false);
         }
         Random random = session.getRandom();
         String containerName = contPicker.pickContName(random, idx, all);
@@ -86,36 +94,48 @@ class FileWriter extends AbstractOperator {
         // as we index arrays starting from 0, we need to remove 1 here
         Integer rand = (filePicker.pickObjKey(random) - 1);
         String filename = null;
-        try {
-            filename = listOfFiles[rand].getName();
-        } catch (ArrayIndexOutOfBoundsException e) {
-            doLogErr(session.getLogger(), "fail to perform file Write operation, tried to put more files than exist", e);
-            sample = new Sample(new Date(), OP_TYPE, false);
-            session.getListener().onSampleCreated(sample);
-            Date now = sample.getTimestamp();
-            Result result = new Result(now, OP_TYPE, sample.isSucc());
-            session.getListener().onOperationCompleted(result);
-            return;
-        }
 
         try {
-            FileInputStream fis = new FileInputStream(listOfFiles[rand]);
-            sample = doWrite(fis, listOfFiles[rand].length(), containerName, filename, config, session);
+            filename = listOfFiles[rand].getName();
+            long length = listOfFiles[rand].length();
+            InputStream fis = null;
+            if (hashCheck) {
+                HashUtil util = new HashUtil();
+                int hashLen = util.getHashLen();
+                length += hashLen;
+                fis = new HashedFileInputStream(listOfFiles[rand], hashCheck, util, length);
+            } else {
+                fis = new FileInputStream(listOfFiles[rand]);
+            }
+
+            sample = doWrite(fis, length, containerName, filename, config, session);
         } catch (FileNotFoundException e) {
-            doLogErr(session.getLogger(), "fail to perform file Write operation", e);
-            sample = new Sample(new Date(), OP_TYPE, false);
+            doLogErr(session.getLogger(), "failed to perform file Write operation, file not found", e);
+			sample = new Sample(new Date(), getId(), getOpType(),
+					getSampleType(), getName(), false);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            doLogErr(session.getLogger(), "failed to perform file Write operation, tried to put more files than exist", e);
+            sample = new Sample(new Date(),  getId(), getOpType(),
+					getSampleType(), getName(), false);
+        } catch (NoSuchAlgorithmException e) {
+            doLogErr(session.getLogger(),
+                    "failed to perform file Write operation, hash Algorithm MD5 not supported, deaktivate hashCheck, maybe?", e);
+            sample = new Sample(new Date(), getId(), getOpType(),
+					getSampleType(), getName(), false);
         }
+
         session.getListener().onSampleCreated(sample);
         Date now = sample.getTimestamp();
-        Result result = new Result(now, OP_TYPE, sample.isSucc());
+		Result result = new Result(now, getId(), getOpType(), getSampleType(),
+				getName(), sample.isSucc());
         session.getListener().onOperationCompleted(result);
     }
 
-    public static Sample doWrite(InputStream in, long length, String conName, String objName, Config config, Session session) {
+    public Sample doWrite(InputStream in, long length, String conName, String objName, Config config, Session session) {
         if (Thread.interrupted())
             throw new AbortedException();
 
-        CountingInputStream cin = new CountingInputStream(in);
+        XferCountingInputStream cin = new XferCountingInputStream(in);
 
         long start = System.currentTimeMillis();
 
@@ -124,8 +144,9 @@ class FileWriter extends AbstractOperator {
         } catch (StorageInterruptedException sie) {
             throw new AbortedException();
         } catch (Exception e) {
-            session.getLogger().error("fail to perform write operation", e);
-            return new Sample(new Date(), OP_TYPE, false);
+            doLogErr(session.getLogger(), "fail to perform filewrite operation", e);
+            return new Sample(new Date(), getId(), getOpType(), getSampleType(),
+    				getName(), false);
         } finally {
             IOUtils.closeQuietly(cin);
         }
@@ -133,6 +154,7 @@ class FileWriter extends AbstractOperator {
         long end = System.currentTimeMillis();
 
         Date now = new Date(end);
-        return new Sample(now, OP_TYPE, true, end - start, cin.getByteCount());
+        return new Sample(now,  getId(), getOpType(), getSampleType(),
+				getName(), true, end - start, cin.getXferTime(), cin.getByteCount());
     }
 }

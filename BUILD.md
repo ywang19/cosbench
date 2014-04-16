@@ -3,7 +3,7 @@ Directory structure
   
 ${ROOT}
   
-    + adaptor-dev      	(a sample project for adaptor development)    
+    + ext		      	(sample projects for adaptor development)    
     + dev				(all cosbench plugin projects)
     + dist				(all libraries)
 		+ main			(the osgi launcher)
@@ -29,6 +29,7 @@ Development Environment
 -----------------------
 
 Below are steps to set up development environment in eclipse:
+
 1. download eclipse SDK (Juno) from http://www.eclipse.org/downloads/
 
 2. get cosbench source code tree by git or downloading the whole zip package.
@@ -40,11 +41,12 @@ folder in cosbench, then eclipse will recognize and import all plugin projects.
 them. "Window -> Preferences -> Plug-in Development -> Target Platform", in "Target definitions", choose the active one,
 normally, it's "Running Platform". Selecting "Edit..." button to add required plugins. 
 
-5. In COSBench, 3 folders under "dist" folder for plugins should be included: "main", "osgi" and "osgi\libs". After added those folders, then apply changes.
+5. In COSBench, 3 folders under "dist" folder for plugins should be included: **main**, **osgi** and **osgi\libs**. After added those folders, then apply changes.
 
 6. Those error signs should disappear, then the development environment is ready.
 
-7. After applied modifications on one project, just generate the plugins by right clicking the project, and select "export... -> Plug-in Development -> Deployable plugins and fragments", and set the "Directory" to "dist\osgi" folder. Then the plugins libary will be placed at "dist\osgi\plugins" folder.
+7. After applied modifications on one project, just generate the plugins by right clicking the project, and select "export... -> Plug-in Development -> Deployable plugins and fragments", 
+and set the "Directory" to "dist\osgi" folder. Then the plugins library will be placed at "dist\osgi\plugins" folder.
 
 8. One script called "pack.cmd" or "pack.sh" could help generate one delivable package by passing it the version number.  
 
@@ -69,21 +71,22 @@ To debug both executables, a few special settings are required.
 		"Default Start level:" = 8
 		"Default Auto-Start:" = true
 		
-	1.6 At the bundle table, for each bundle, there are two parameters: "Start Level" and "Auto-Start". The information is recorded "osgi.bundles" parameter in config.ini.
+	1.6 At the bundle table, for each bundle, there are two parameters: "Start Level" and "Auto-Start". The information can get from "osgi.bundles" parameter in config.ini.
 		e.g.
 		"libs/com.springsource.freemarker-2.3.15.jar@2\:start" means the freemarker bundle will be with "Start Level" = 2 and "Auto-Start" = true.
 		
 	1.7 Some bundles may not set the two parameters, like "com.springsource.apache.coyote". in this case, just let it be. 
+	Ensure below two system bundles are checked: **org.eclipse.equinox.launcher_1.2.0.v20110502.jar**, **org.eclipse.osgi-3.7.0.v20110613.jar**
 	
 	1.8 After configured bundle part, the next step is to configure "Arguments" tab, here is the settings:
-		program arguments: -os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog -console
-		vm arguments: -Xms40m -Xmx512m -Declipse.ignoreApp=true -Dosgi.noShutdown=true **-Dosgi.startLevel=8** **-Dcosbench.tomcat.config=c:\controller-tomcat-server.xml**
 		
-	1.9 There are two parameter pairs are added beside default, one is "osgi.startLevel=8" which tells framework the start level, another is "cosbench.tomcat.config" whi
-		indicates where to find the tomcat configuration file.
+		> program arguments: -os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog -console
+		> vm arguments: -Xms40m -Xmx512m -Declipse.ignoreApp=true -Dosgi.noShutdown=true -Dosgi.startLevel=8 -Dcosbench.tomcat.config=./conf/controller-tomcat-server.xml
+		> working directory: ${ROOT}/release
 		
-	1.10 Making one sub folder called "plugins" in "dist\osgi" folder, and copy "org.eclipse.org-xxx.jar" into "plugins" folder, then refresh all bundle projects, now there should
-		no error marks on each project.
+	1.9 There are two parameter pairs are added beside default, one is **osgi.startLevel** which tells framework the start level, another is **cosbench.tomcat.config** which indicates where to find the tomcat configuration file.
+		
+	1.10 Making one sub folder called "plugins" in "dist\osgi" folder, and copy **org.eclipse.osgi-3.7.0.v20110613.jar** into "plugins" folder, then refresh all bundle projects, now there should no error marks on each project.
 		
 	1.11 Running the project should see messages as below on eclipse console window:
 	

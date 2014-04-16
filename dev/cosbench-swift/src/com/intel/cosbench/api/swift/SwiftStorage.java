@@ -45,6 +45,9 @@ class SwiftStorage extends NoneStorage {
 
     /* configurations */
     private int timeout; // connection and socket timeout
+    private String token;
+    private String storage_url;
+    private String policy;
 
     public SwiftStorage() {
         /* empty */
@@ -55,8 +58,14 @@ class SwiftStorage extends NoneStorage {
         super.init(config, logger);
 
         timeout = config.getInt(CONN_TIMEOUT_KEY, CONN_TIMEOUT_DEFAULT);
-
+        token = config.get(AUTH_TOKEN_KEY, AUTH_TOKEN_DEFAULT);
+        storage_url = config.get(STORAGE_URL_KEY, STORAGE_URL_DEFAULT);
+        policy = config.get(POLICY_KEY, POLICY_DEFAULT);
+        		
         parms.put(CONN_TIMEOUT_KEY, timeout);
+        parms.put(AUTH_TOKEN_KEY, token);
+        parms.put(STORAGE_URL_KEY, storage_url);
+        parms.put(POLICY_KEY, policy);
 
         logger.debug("using storage config: {}", parms);
 
@@ -68,14 +77,37 @@ class SwiftStorage extends NoneStorage {
     @Override
     public void setAuthContext(AuthContext info) {
         super.setAuthContext(info);
-        String token = info.getStr(AUTH_TOKEN_KEY);
-        String url = info.getStr(STORAGE_URL_KEY);
+        
+        if(info != null) {
+        	token = info.getStr(AUTH_TOKEN_KEY);
+        	storage_url = info.getStr(STORAGE_URL_KEY);
+        }
+        
         try {
-            client.init(token, url);
+            client.init(token, storage_url, policy);
         } catch (Exception e) {
             throw new StorageException(e);
         }
-        logger.debug("using auth token: {}, storage url: {}", token, url);
+        logger.debug(new StringBuffer()
+        		.append("using auth token: ")
+        		.append(token)
+        		.append(", storage url: ")
+        		.append(storage_url)
+        		.append(", storage policy: ")
+        		.append(policy).toString());
+    }
+
+    @Override
+    public AuthContext getAuthContext() {
+	String token = client.getAuthToken();
+	String storage_url = client.getStorageURL();
+
+	AuthContext info = new AuthContext();
+	info.put(AUTH_TOKEN_KEY, token);
+	info.put(STORAGE_URL_KEY, storage_url);
+
+	logger.debug("returned auth token: {}, storage url: {}", token, storage_url);
+	return info;
     }
 
     @Override

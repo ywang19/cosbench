@@ -49,6 +49,7 @@ class WorkAgent extends AbstractAgent implements Session, OperationListener {
     private long interval; /* interval between check points */
 
     private int totalOps; /* total operations to be performed */
+    private int op_count;
     private long totalBytes; /* total bytes to be transferred */
 
     private OperationPicker operationPicker;
@@ -147,7 +148,7 @@ class WorkAgent extends AbstractAgent implements Session, OperationListener {
     private void initMarks() {
         Set<String> types = new LinkedHashSet<String>();
         for (OperatorContext op : operatorRegistry)
-            types.add(getMarkType(op.getOpType(), op.getSampleType()));
+            types.add(getMarkType(op.getId(), op.getOpType(), op.getSampleType(), op.getName()));
         for (String type : types)
             currMarks.addMark(newMark(type));
         for (String type : types)
@@ -168,6 +169,9 @@ class WorkAgent extends AbstractAgent implements Session, OperationListener {
     }
 
     private void performOperation() {
+    	if(workerContext.getAuthApi() == null || workerContext.getStorageApi() == null) 
+    		throw new AbortedException();
+    		
         lbegin = System.currentTimeMillis();
         Random random = workerContext.getRandom();
         String op = operationPicker.pickOperation(random);
@@ -178,11 +182,12 @@ class WorkAgent extends AbstractAgent implements Session, OperationListener {
     @Override
     public void onSampleCreated(Sample sample) {
         curr = sample.getTimestamp().getTime();
-        String type = getMarkType(sample.getOpType(), sample.getSampleType());
+		String type = getMarkType(sample.getOpId(), sample.getOpType(),
+				sample.getSampleType(), sample.getOpName());
         currMarks.getMark(type).addSample(sample);
         if (lbegin >= begin && lbegin < end && curr > begin && curr <= end) {
             globalMarks.getMark(type).addSample(sample);
-            operatorRegistry.getOperator(sample.getOpType()).addSample(sample);
+            operatorRegistry.getOperator(sample.getOpId()).addSample(sample);
             if (lbegin < frsample)
                 frsample = lbegin; // first sample emitted during runtime
             lrsample = curr; // last sample collected during runtime
@@ -213,10 +218,13 @@ class WorkAgent extends AbstractAgent implements Session, OperationListener {
     @Override
     public void onOperationCompleted(Result result) {
         curr = result.getTimestamp().getTime();
-        String type = getMarkType(result.getOpType(), result.getSampleType());
+/* */
+		String type = getMarkType(result.getOpId(), result.getOpType(),
+				result.getSampleType(), result.getOpName());
         currMarks.getMark(type).addOperation(result);
         if (lop >= begin && lop < end && curr > begin && curr <= end)
             globalMarks.getMark(type).addOperation(result);
+/* */
         lop = curr; // last operation performed
         trySummary(); // make a summary report if necessary
     }
@@ -231,14 +239,18 @@ class WorkAgent extends AbstractAgent implements Session, OperationListener {
     }
 
     private void doSummary() {
+/* */
         long window = lrsample - frsample;
         Report report = new Report();
         for (Mark mark : globalMarks)
             report.addMetrics(Metrics.convert(mark, window));
         workerContext.setReport(report);
+/* */
     }
 
     private int getTotalOps() {
+//    	return ++op_count;
+    	
         int sum = 0;
         for (Mark mark : globalMarks)
             sum += mark.getTotalOpCount();

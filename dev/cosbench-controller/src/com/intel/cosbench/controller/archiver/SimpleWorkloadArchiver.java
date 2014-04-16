@@ -36,35 +36,45 @@ import com.intel.cosbench.model.*;
 public class SimpleWorkloadArchiver implements WorkloadArchiver {
 
     private static final Logger LOGGER = LogFactory.getSystemLogger();
+    
+    private File ARCHIVE_DIR = new File("archive");
 
-    private static final File ROOT_DIR = new File("archive");
+//    private static final File ROOT_DIR = new File("archive");
 
-    static {
-        if (!ROOT_DIR.exists())
-            ROOT_DIR.mkdirs();
-        String path = ROOT_DIR.getAbsolutePath();
+//    static {
+//        if (!ROOT_DIR.exists())
+//            ROOT_DIR.mkdirs();
+//        String path = ROOT_DIR.getAbsolutePath();
+//        LOGGER.info("using {} for storing workload archives", path);
+//    }
+
+    public SimpleWorkloadArchiver() {
+    	this("archive");
+    }
+    
+    public SimpleWorkloadArchiver(final String archive) {
+    	ARCHIVE_DIR = new File(archive);
+    	
+        if (!ARCHIVE_DIR.exists())
+        	ARCHIVE_DIR.mkdirs();
+        String path = ARCHIVE_DIR.getAbsolutePath();
         LOGGER.info("using {} for storing workload archives", path);
     }
 
-    public SimpleWorkloadArchiver() {
-        /* empty */
-    }
-
-    @Override
+	@Override
     public synchronized void archive(WorkloadInfo info) {
-        File runDir = new File(ROOT_DIR, getRunDirName(info));
+        File runDir = new File(ARCHIVE_DIR, getRunDirName(info));
         try {
             doArchive(info, runDir);
         } catch (Exception e) {
             LOGGER.error("fail to archive workload", e);
             return;
-        } finally {
-            try {
-                updateCount();
-            } catch (Exception e) {
-                LOGGER.error("cannot update workload count", e);
-            }
         }
+        try {
+			updateCount(info);
+		} catch (Exception e) {
+			LOGGER.error("fail to update count", e);
+		}
         String id = info.getId();
         LOGGER.info("workload {} has been successfully archived", id);
     }
@@ -88,7 +98,7 @@ public class SimpleWorkloadArchiver implements WorkloadArchiver {
     }
 
     private void exportWorkloadRun(WorkloadInfo info) throws IOException {
-        File file = new File(ROOT_DIR, "run-history.csv");
+        File file = new File(ARCHIVE_DIR, "run-history.csv");
         boolean ready = file.exists() && file.length() > 0;
         Writer writer = new BufferedWriter(new FileWriter(file, true));
         RunExporter exporter = Exporters.newRunExporter(info);
@@ -166,9 +176,7 @@ public class SimpleWorkloadArchiver implements WorkloadArchiver {
     }
 
     private static String getStageFileName(StageInfo info) {
-        String name = info.getId();
-        name += "-" + info.getStage().getName();
-        return name;
+        return info.getId();
     }
 
     private void exportConfig(Workload workload, File parent)
@@ -189,7 +197,7 @@ public class SimpleWorkloadArchiver implements WorkloadArchiver {
 
     @Override
     public File getWorkloadConfig(WorkloadInfo info) {
-        File runDir = new File(ROOT_DIR, getRunDirName(info));
+        File runDir = new File(ARCHIVE_DIR, getRunDirName(info));
         return new File(runDir, "workload-config.xml");
     }
 
@@ -210,12 +218,12 @@ public class SimpleWorkloadArchiver implements WorkloadArchiver {
 
     @Override
     public File getWorkloadLog(WorkloadInfo info) {
-        File runDir = new File(ROOT_DIR, getRunDirName(info));
+        File runDir = new File(ARCHIVE_DIR, getRunDirName(info));
         return new File(runDir, "workload.log");
     }
 
     private void exportPerformanceMatrix(WorkloadInfo info) throws IOException {
-        File file = new File(ROOT_DIR, "workloads.csv");
+        File file = new File(ARCHIVE_DIR, "workloads.csv");
         boolean ready = file.exists() && file.length() > 0;
         Writer writer = new BufferedWriter(new FileWriter(file, true));
         MatrixExporter exporter = Exporters.newMatrixExporter(info);
@@ -231,21 +239,21 @@ public class SimpleWorkloadArchiver implements WorkloadArchiver {
         String msg = "perf details of workload {} has been added to {}";
         LOGGER.debug(msg, id, path);
     }
-
-    private void updateCount() throws IOException {
+ 
+    private void updateCount(WorkloadInfo info) throws IOException {
         int count = 0;
-        File file = new File(ROOT_DIR, ".meta");
-        if (file.exists() && file.length() > 0) {
-            Reader reader = new BufferedReader(new FileReader(file));
-            try {
-                count = new Scanner(reader).nextInt();
-            } finally {
-                reader.close();
-            }
-        }
+        File file = new File(ARCHIVE_DIR, ".meta");
+        String workloadId = null;
+        workloadId = info.getId();
+        try {
+    		count = parseID(workloadId);			
+		} catch (Exception e) {
+			LOGGER.error("cannot parse workloadId", e);
+		}
+        
         Writer writer = new BufferedWriter(new FileWriter(file));
         try {
-            writer.write(String.valueOf(++count));
+            writer.write(String.valueOf(count));
         } finally {
             writer.close();
         }
@@ -264,7 +272,7 @@ public class SimpleWorkloadArchiver implements WorkloadArchiver {
     }
 
     private int retrieveCount() throws IOException {
-        File file = new File(ROOT_DIR, ".meta");
+        File file = new File(ARCHIVE_DIR, ".meta");
         if (!file.exists() || file.length() == 0)
             return 0;
         int count;
@@ -277,5 +285,15 @@ public class SimpleWorkloadArchiver implements WorkloadArchiver {
         LOGGER.debug("workload count has been retrieved as {}", count);
         return count;
     }
+    
+	private int parseID(String workloadID) throws NumberFormatException, IndexOutOfBoundsException {
+		int count = 0;
+		try {
+			count = Integer.parseInt(workloadID.substring(1)); 
+		} catch (Exception e) {
+			LOGGER.error("cannot extract count from workloadId", e);
+		}
+		return count;
+	}
 
 }

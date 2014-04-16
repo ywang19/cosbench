@@ -34,6 +34,8 @@ public class Metrics implements Item, Cloneable {
 
     private String opType; /* operation type */
     private String sampleType; /* sample type */
+    private String opName; /* operation name*/
+    private String opId; /* operation id */
 
     /* Status */
 
@@ -45,11 +47,15 @@ public class Metrics implements Item, Cloneable {
     /* Metrics */
 
     private double avgResTime; /* average response time */
+    private double avgXferTime; /* average transfer time */
     private double throughput; /* operation throughput */
     private double bandwidth; /* network bandwidth */
 
     /* Latency Details */
     private Histogram latency; /* detailed latency metrics */
+    
+    /* success ratio */
+    private double ratio;
 
     public Metrics() {
         /* empty */
@@ -78,6 +84,22 @@ public class Metrics implements Item, Cloneable {
 
     public void setSampleType(String sampleType) {
         this.sampleType = sampleType;
+    }
+    
+    public String getOpName(){
+    	return opName;
+    }
+    
+    public void setOpName(String opName){
+    	this.opName = opName;
+    }
+    
+    public String getOpId() {
+    	return opId;
+    }
+    
+    public void setOpId(String opId) {
+    	this.opId = opId;
     }
 
     public int getSampleCount() {
@@ -120,6 +142,14 @@ public class Metrics implements Item, Cloneable {
         this.avgResTime = avgResTime;
     }
 
+    public double getAvgXferTime() {
+    	return avgXferTime;
+    }
+
+    public void setAvgXferTime(double avgXferTime) {
+    	this.avgXferTime = avgXferTime;
+    }
+    
     public double getThroughput() {
         return throughput;
     }
@@ -143,6 +173,14 @@ public class Metrics implements Item, Cloneable {
     public void setLatency(Histogram latency) {
         this.latency = latency;
     }
+    
+    public void setRatio(double ratio) {
+    	this.ratio = ratio;
+    }
+    
+    public double getRatio() {
+    	return ratio;
+    }
 
     @Override
     public Metrics clone() {
@@ -153,16 +191,19 @@ public class Metrics implements Item, Cloneable {
         return this;
     }
 
-    public static String getMetricsType(String opType, String sampleType) {
-        return opType + "-" + sampleType;
+	public static String getMetricsType(String opId, String opType,
+			String sampleType, String opName) {
+		return opId + "." + opType + "." + sampleType + "." + opName;
     }
 
     public static Metrics newMetrics(String type) {
-        String[] types = type.split("-");
+        String[] types = type.split("\\.");
         Metrics metrics = new Metrics();
         metrics.setName(type);
-        metrics.setOpType(types[0]);
-        metrics.setSampleType(types[1]);
+        metrics.setOpId(types.length > 0? types[0] : "na");
+        metrics.setOpType(types.length > 1? types[1] : "na");
+        metrics.setSampleType(types.length > 2? types[2] : "na");
+        metrics.setOpName(types.length > 3? types[3] : "na");
         return metrics;
     }
 
@@ -170,14 +211,19 @@ public class Metrics implements Item, Cloneable {
         int sps = mark.getSampleCount();
         int tsps = mark.getTotalSampleCount();
         long rtSum = mark.getRtSum();
+        long xtSum = mark.getXtSum();
         long bytes = mark.getByteCount();
-        String type = getMetricsType(mark.getOpType(), mark.getSampleType());
+		String type = getMetricsType(mark.getOpId(), mark.getOpType(),
+				mark.getSampleType(), mark.getOpName());
         Metrics metrics = newMetrics(type);
         metrics.setSampleCount(sps);
         metrics.setTotalSampleCount(tsps);
+        metrics.setRatio(metrics.getTotalSampleCount() > 0 ? (double) metrics
+				.getSampleCount() / metrics.getTotalSampleCount() : 0D);
         metrics.setByteCount(bytes);
         metrics.setWorkerCount(1);
         metrics.setAvgResTime(rtSum > 0 ? ((double) rtSum) / sps : 0);
+        metrics.setAvgXferTime(xtSum > 0 ? ((double) xtSum) / sps : 0);
         metrics.setThroughput(sps > 0 ? ((double) sps) / window * 1000 : 0);
         metrics.setBandwidth(bytes > 0 ? ((double) bytes) / window * 1000 : 0);
         return metrics;

@@ -5,13 +5,14 @@
     <th>Op-Count</th>
     <th>Byte-Count</th>
     <th>Avg-ResTime</th>
+    <th>Avg-ProcTime</th>
     <th>Throughput</th>
     <th>Bandwidth</th>
     <th>Succ-Ratio</th>
   </tr>
   <#list allMetrics as mInfo>
     <tr>
-      <td>${mInfo.opType}<#if mInfo.opType != mInfo.sampleType>-${mInfo.sampleType}</#if></td>
+      <td>${mInfo.opName}<#if mInfo.opName != mInfo.sampleType>-${mInfo.sampleType}</#if></td>
       <td>
         <#assign op = mInfo.sampleCount >
         <#if (op >= 1000) >
@@ -67,6 +68,14 @@
           ${mInfo.avgResTime?string("0.##")} ms
         </#if>
       </td>
+      <td>
+        <#assign procTime = mInfo.avgResTime - mInfo.avgXferTime>
+        <#if procTime == 0>
+          N/A
+        <#else>
+          ${procTime?string("0.##")} ms
+        </#if>
+      </td>
       <td>${mInfo.throughput?string("0.##")} op/s</td>
       <td>
         <#assign bw = mInfo.bandwidth >
@@ -91,7 +100,7 @@
         <#if mInfo.totalSampleCount == 0 >
           N/A
         <#else>
-          <#assign sRatio = mInfo.sampleCount / mInfo.totalSampleCount >
+          <#assign sRatio = mInfo.ratio >
           ${sRatio?string("0.##%")}
         </#if>
       </td>
@@ -112,7 +121,7 @@
   </tr>
   <#list allMetrics as mInfo>
     <tr>
-      <td>${mInfo.opType}<#if mInfo.opType != mInfo.sampleType>-${mInfo.sampleType}</#if></td>
+      <td>${mInfo.opName}<#if mInfo.opName != mInfo.sampleType>-${mInfo.sampleType}</#if></td>
       <td>
         <#if !mInfo.latency._60?? >
           N/A

@@ -6,6 +6,7 @@
       <th colspan="${size}">Op-Count</th>
       <th colspan="${size}">Byte-Count</th>
       <th colspan="${size}">Avg-ResTime</th>
+      <th colspan="${size}">Avg-ProcTime</th>
       <th colspan="${size}">Throughput</th>
       <th colspan="${size}">Bandwidth</th>
       <th colspan="${size}">Succ-Ratio</th>
@@ -13,22 +14,22 @@
     <tr>
       <#assign allMetrics = ssInfo.report.allMetrics >
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opName}</td>
       </#list>
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opName}</td>
       </#list>
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opName}</td>
       </#list>
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opName}</td>
       </#list>
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opName}</td>
       </#list>
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opName}</td>
       </#list>
     </tr>
     <#break>
@@ -102,6 +103,15 @@
           </#if>
       </#list>
       <#list allMetrics as mInfo >
+        <td>
+          <#assign procTime = mInfo.avgResTime - mInfo.avgXferTime>
+          <#if procTime == 0 >
+            N/A
+          <#else>
+            ${procTime?string("0.##")} ms</td>
+          </#if>
+      </#list>
+      <#list allMetrics as mInfo >
         <td>${mInfo.throughput?string("0.##")} op/s</td>
       </#list>
       <#list allMetrics as mInfo >
@@ -130,7 +140,7 @@
           <#if mInfo.totalSampleCount == 0 >
             N/A
           <#else>
-            <#assign sRatio = mInfo.sampleCount / mInfo.totalSampleCount >
+            <#assign sRatio = mInfo.ratio >
             ${sRatio?string("0.##%")}
           </#if>
         </td>

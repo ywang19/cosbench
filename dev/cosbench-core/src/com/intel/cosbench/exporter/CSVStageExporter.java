@@ -22,6 +22,8 @@ import static com.intel.cosbench.exporter.Formats.*;
 import java.io.*;
 import java.util.Arrays;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.intel.cosbench.bench.*;
 
 /**
@@ -45,16 +47,22 @@ class CSVStageExporter extends AbstractStageExporter {
         buffer.append("Op-Count").append(suffix);
         buffer.append("Byte-Count").append(suffix);
         buffer.append("Avg-ResTime").append(suffix);
+        buffer.append("Avg-ProcTime").append(suffix);
         buffer.append("Throughput").append(suffix);
         buffer.append("Bandwidth").append(suffix);
         buffer.append("Succ-Ratio").append(suffix);
         buffer.append("Version-Info");
         buffer.append(',').append(',').append('\n').append(',');
-        for (int i = 0; i < 6; i++)
-            // 6 metrics
+        for (int i = 0; i < 7; i++)
+            // 7 metrics
             for (Metrics metrics : snapshots[0].getReport())
-                buffer.append(metrics.getSampleType()).append(',');
-        buffer.append("Min-Version").append(',');
+				buffer.append(
+						StringUtils.join(new Object[] {
+								(metrics.getOpName().equals(
+										metrics.getSampleType()) ? null
+										: metrics.getOpName() + "-"),
+								metrics.getSampleType() })).append(',');
+        buffer.append("Min-Version").append(','); 
         buffer.append("Version").append(',');
         buffer.append("Max-Version").append('\n');
         writer.write(buffer.toString());
@@ -68,7 +76,7 @@ class CSVStageExporter extends AbstractStageExporter {
 
         if(report.getSize() == 0)
         {
-               report.addMetrics(Metrics.newMetrics("na-na"));
+               report.addMetrics(Metrics.newMetrics("na.na"));
         }
         
         /* Operation Count */
@@ -86,6 +94,15 @@ class CSVStageExporter extends AbstractStageExporter {
                 buffer.append("N/A");
             buffer.append(',');
         }
+        /* Transfer Time */
+        for (Metrics metrics : report) {
+            double pt = metrics.getAvgResTime() - metrics.getAvgXferTime();
+            if (pt > 0)
+                buffer.append(NUM.format(pt));
+            else
+                buffer.append("N/A");
+            buffer.append(',');
+        }
         /* Throughput */
         for (Metrics metrics : report)
             buffer.append(NUM.format(metrics.getThroughput())).append(',');
@@ -94,9 +111,9 @@ class CSVStageExporter extends AbstractStageExporter {
             buffer.append(NUM.format(metrics.getBandwidth())).append(',');
         /* Success Ratio */
         for (Metrics metrics : report) {
-            double t = (double) metrics.getTotalSampleCount();
+            double t = (double) metrics.getRatio();
             if (t > 0)
-                buffer.append(RATIO.format(metrics.getSampleCount() / t));
+                buffer.append(RATIO.format(metrics.getRatio()));
             else
                 buffer.append("N/A");
             buffer.append(',');
